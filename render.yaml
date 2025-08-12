@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: coming-soon-site
+    runtime: node
+    env: production
+    buildCommand: npm run build
+    startCommand: npm start
+    disk: 0
+    envVars:
+      - key: NODE_VERSION
+        value: 18.17.0
