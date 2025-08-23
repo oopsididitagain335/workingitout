@@ -1,18 +1,25 @@
 // lib/dbConnect.ts
 import mongoose from 'mongoose';
 
-// Extend the global scope to cache mongoose connection
+// Extend global with full Mongoose cache
 declare global {
-  var mongoose: { conn: any; promise: any };
+  var mongoose: {
+    conn: typeof mongoose | null;
+    promise: Promise<typeof mongoose> | null;
+  };
 }
 
-let cached = global.mongoose;
+const globalWithMongoose = global as typeof global & {
+  mongoose: { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null };
+};
+
+let cached = globalWithMongoose.mongoose;
 
 if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+  cached = globalWithMongoose.mongoose = { conn: null, promise: null };
 }
 
-async function dbConnect(): Promise<any> {
+async function dbConnect(): Promise<typeof mongoose> {
   if (cached.conn) {
     return cached.conn;
   }
