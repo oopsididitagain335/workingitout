@@ -57,6 +57,21 @@ export default function Home() {
             <li>🌐 Hosted globally via Render</li>
           </ul>
         </div>
+
+        <div className="mt-8">
+          <a
+            href="/login"
+            className="inline-block bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition"
+          >
+            Log In
+          </a>{' '}
+          <a
+            href="/signup"
+            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
+          >
+            Sign Up
+          </a>
+        </div>
       </div>
     </div>
   );
