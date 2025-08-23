@@ -1,5 +1,4 @@
-// models/User.ts
-import { Schema, model, Types } from 'mongoose';
+import { Schema, model, models, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 export interface Link {
@@ -21,32 +20,40 @@ export interface User {
   updatedAt: Date;
 }
 
-const UserSchema = new Schema({
-  username: { type: String, required: true, unique: true, lowercase: true },
-  name: { type: String, default: '' },
-  email: { type: String, required: true, unique: true, lowercase: true },
-  password: { type: String, required: true },
-  bio: { type: String, default: 'This is my bio link. Check out my links below!' },
-  avatar: { type: String, default: '' },
-  links: [
-    {
-      label: String,
-      url: String,
-      color: String,
-    },
-  ],
-}, { timestamps: true });
+const UserSchema = new Schema(
+  {
+    username: { type: String, required: true, unique: true, lowercase: true },
+    name: { type: String, default: '' },
+    email: { type: String, required: true, unique: true, lowercase: true },
+    password: { type: String, required: true },
+    bio: { type: String, default: 'This is my bio link. Check out my links below!' },
+    avatar: { type: String, default: '' },
+    links: [
+      {
+        label: String,
+        url: String,
+        color: String,
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
+// Hash password before saving
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
-UserSchema.methods.comparePassword = async function (candidate: string): Promise<boolean> {
+// Add password comparison method
+UserSchema.methods.comparePassword = async function (
+  candidate: string
+): Promise<boolean> {
   return await bcrypt.compare(candidate, this.password);
 };
 
-// ✅ Now TypeScript knows `mongoose.models` exists
-const UserModel = mongoose.models.User || model<User>('User', UserSchema);
+// ✅ Reuse existing model if it exists (avoids OverwriteModelError)
+const UserModel = models.User || model<User>('User', UserSchema);
+
 export default UserModel;
