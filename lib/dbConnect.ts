@@ -1,26 +1,23 @@
-import mongoose from 'mongoose';
+import mongoose, { Mongoose } from 'mongoose';
 
 // Extend global with proper caching structure
 declare global {
-  // allow global `mongoose` cache
   // eslint-disable-next-line no-var
-  var mongoose: {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
-  };
+  var mongooseCache: {
+    conn: Mongoose | null;
+    promise: Promise<Mongoose> | null;
+  } | undefined;
 }
 
-const globalWithMongoose = global as typeof global & {
-  mongoose: { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null };
+// Use global for hot-reload friendly cache
+const cached = global.mongooseCache ?? {
+  conn: null,
+  promise: null,
 };
 
-let cached = globalWithMongoose.mongoose;
+global.mongooseCache = cached;
 
-if (!cached) {
-  cached = globalWithMongoose.mongoose = { conn: null, promise: null };
-}
-
-async function dbConnect(): Promise<typeof mongoose> {
+async function dbConnect(): Promise<Mongoose> {
   if (cached.conn) {
     return cached.conn;
   }
@@ -28,8 +25,7 @@ async function dbConnect(): Promise<typeof mongoose> {
   if (!cached.promise) {
     const opts = { bufferCommands: false };
 
-    // 👇 Explicitly cast this so TS understands
-    cached.promise = mongoose.connect(process.env.MONGO_URI!, opts) as Promise<typeof mongoose>;
+    cached.promise = mongoose.connect(process.env.MONGO_URI!, opts);
   }
 
   try {
