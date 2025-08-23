@@ -2,6 +2,7 @@
 import { Schema, model, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+// TypeScript interfaces
 export interface Link {
   label: string;
   url: string;
@@ -21,6 +22,7 @@ export interface User {
   updatedAt: Date;
 }
 
+// Mongoose schema
 const UserSchema = new Schema({
   username: { type: String, required: true, unique: true, lowercase: true },
   name: { type: String, default: '' },
@@ -37,14 +39,17 @@ const UserSchema = new Schema({
   ],
 }, { timestamps: true });
 
+// Hash password before saving
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
-UserSchema.methods.comparePassword = async function (candidate: string) {
+// Compare password method
+UserSchema.methods.comparePassword = async function (candidate: string): Promise<boolean> {
   return await bcrypt.compare(candidate, this.password);
 };
 
+// Export model
 export default mongoose.models.User || model<User>('User', UserSchema);
