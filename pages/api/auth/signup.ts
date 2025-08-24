@@ -1,50 +1,36 @@
 // pages/api/auth/signup.ts
-import type { NextApiRequest, NextApiResponse } from 'next';
-import dbConnect from '../../../lib/dbConnect';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { connectToDB } from '../../../lib/db';
 import User from '../../../models/User';
+import bcrypt from 'bcryptjs';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const { username, email, password, name } = req.body;
+  const { name, username, email, password } = req.body;
 
-  if (!username || !email || !password) {
+  if (!name || !username || !email || !password) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
   try {
-    await dbConnect();
+    await connectToDB();
 
-    const existingUser = await User.findOne({
-      $or: [{ email }, { username: username.toLowerCase() }],
-    });
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ message: 'Email or username already taken' });
     }
 
-    const user = new User({
-      username: username.toLowerCase(),
-      email,
-      password,
-      name: name || username,
-    });
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-    await user.save();
+    const newUser = new User({ name, username, email, password: hashedPassword });
+    await newUser.save();
 
-    const userObj = user.toObject();
-    delete userObj.password;
-
-    // Set auth cookie
-    res.setHeader('Set-Cookie', `authToken=abc_${user._id}; Path=/; HttpOnly; Max-Age=3600; SameSite=Strict`);
-
-    res.status(201).json({ user: userObj });
+    res.status(201).json({ message: 'User created successfully' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Signup error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 }
