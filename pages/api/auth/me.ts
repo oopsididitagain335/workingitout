@@ -1,6 +1,6 @@
 // pages/api/auth/me.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import dbConnect from '../../../lib/dbConnect';
+import dbConnect from '../../../lib/db';
 import User from '../../../models/User';
 
 export default async function handler(
