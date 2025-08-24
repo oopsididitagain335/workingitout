@@ -11,7 +11,8 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  // ✅ Fix: Add type to `e`
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -40,7 +41,7 @@ export default function Signup() {
         
         <form onSubmit={handleSubmit}>
           <div className="mb-5">
-            <label className="block text-gray-300 text-sm font-medium mb-2">Full Name</label>
+            <label className="block text-gray-300 text-sm font-medium mb-2">Name</label>
             <input
               type="text"
               value={name}
