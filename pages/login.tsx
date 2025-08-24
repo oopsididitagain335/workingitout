@@ -1,5 +1,5 @@
-import React from 'react';
-import { useState } from 'react';
+// pages/login.tsx
+import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 
 export default function Login() {
@@ -23,10 +23,13 @@ export default function Login() {
     const data = await res.json();
 
     if (res.ok) {
+      // ✅ Save user and token
       localStorage.setItem('user', JSON.stringify(data.user));
       localStorage.setItem('token', data.token);
+      // ✅ Redirect to dashboard
       router.push('/dashboard');
     } else {
+      // ✅ Show error
       setError(data.message);
       setLoading(false);
     }
