@@ -1,6 +1,6 @@
 // pages/api/auth/login.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { connectToDB } from '../../../lib/db';
+import dbConnect from '../../../lib/db'; // ✅ Default import (no curly braces)
 import User from '../../../models/User';
 import jwt from 'jsonwebtoken';
 
@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    await connectToDB();
+    await dbConnect(); // ✅ Call the default export
 
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
