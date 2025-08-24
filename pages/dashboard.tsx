@@ -16,8 +16,14 @@ export default function Dashboard() {
       return;
     }
 
-    setUser(JSON.parse(savedUser));
-    setLoading(false);
+    try {
+      setUser(JSON.parse(savedUser));
+    } catch (error) {
+      console.error('Failed to parse user data');
+      router.push('/login');
+    } finally {
+      setLoading(false);
+    }
   }, [router]);
 
   const handleLogout = () => {
@@ -30,6 +36,15 @@ export default function Dashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <p className="text-gray-400">Loading...</p>
+      </div>
+    );
+  }
+
+  // ✅ Null check: only render if user exists
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <p className="text-red-500">Something went wrong. Please log in again.</p>
       </div>
     );
   }
@@ -52,8 +67,11 @@ export default function Dashboard() {
       {/* Main */}
       <main className="max-w-6xl mx-auto p-6">
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-lg">
-          <h2 className="text-xl font-semibold mb-2">Welcome, {user.name}!</h2>
-          <p className="text-gray-400 mb-4">Username: <span className="text-green-400">@{user.username}</span></p>
+          {/* ✅ Safe rendering: user is guaranteed to exist here */}
+          <h2 className="text-xl font-semibold mb-2">Welcome, {user.name || 'User'}!</h2>
+          <p className="text-gray-400 mb-4">
+            Username: <span className="text-green-400">@{user.username}</span>
+          </p>
           <p className="text-gray-400">Email: {user.email}</p>
 
           <div className="mt-8 p-4 bg-gray-800 rounded-lg">
@@ -62,8 +80,6 @@ export default function Dashboard() {
             </p>
           </div>
         </div>
-
-        {/* Future: Add bio links, stats, themes, etc. */}
       </main>
     </div>
   );
