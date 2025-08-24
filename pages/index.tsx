@@ -11,19 +11,22 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 px-6 py-16 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-6 py-16 font-sans">
       <div className="max-w-4xl mx-auto text-center">
+        {/* Logo & Headline */}
         <div className="mb-8">
-          <h1 className="text-5xl md:text-7xl font-bold text-gray-800 mb-6">
-            Your <span className="text-blue-600">link in bio.</span>
-            <br />
-            <span className="text-4xl md:text-6xl">Done right.</span>
+          <h1 className="text-5xl md:text-7xl font-extrabold text-gray-800 mb-4 tracking-tight">
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              thebiolink.
+            </span>
+            <span className="text-gray-600">lol</span>
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-10">
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-10 leading-relaxed">
             One link to rule them all. Share your links, socials, and content with a beautiful, fast, and modern bio page.
           </p>
         </div>
 
+        {/* Search Bar */}
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-16">
           <input
             type="text"
@@ -31,51 +34,56 @@ export default function Home() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && goToLink()}
-            className="px-5 py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64 text-lg"
+            className="px-6 py-4 text-lg border border-gray-300 rounded-full focus:outline-none focus:ring-4 focus:ring-blue-200 shadow-sm transition w-full sm:w-72 text-center sm:text-left"
           />
           <button
             onClick={goToLink}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-r-lg transition duration-200 transform hover:scale-[1.02]"
+            className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition duration-200 transform hover:scale-105"
           >
-            Go
+            Go →
           </button>
         </div>
 
-        <div className="border-t pt-10 max-w-2xl mx-auto">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Why thebiolink.lol?</h2>
-          <ul className="text-gray-600 space-y-2 text-left md:text-center">
-            <li className="flex items-center justify-center gap-2">
-              ⚡ Instant setup — no signup
-            </li>
-            <li className="flex items-center justify-center gap-2">
-              🎨 Fully customizable (coming soon)
-            </li>
-            <li className="flex items-center justify-center gap-2">
-              📱 Mobile-optimized & fast
-            </li>
-            <li className="flex items-center justify-center gap-2">
-              🔒 No tracking, no ads
-            </li>
-            <li className="flex items-center justify-center gap-2">
-              🌐 Hosted globally via Render
-            </li>
-          </ul>
+        {/* Features */}
+        <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-12">
+          <div className="bg-white p-6 rounded-xl shadow-md text-left hover:shadow-lg transition">
+            <h3 className="font-bold text-gray-800 text-lg">⚡ Instant Setup</h3>
+            <p className="text-gray-600 mt-1">No signup needed — just type your name and go.</p>
+          </div>
+          <div className="bg-white p-6 rounded-xl shadow-md text-left hover:shadow-lg transition">
+            <h3 className="font-bold text-gray-800 text-lg">🎨 Fully Customizable</h3>
+            <p className="text-gray-600 mt-1">Log in to design your profile, links, and avatar.</p>
+          </div>
+          <div className="bg-white p-6 rounded-xl shadow-md text-left hover:shadow-lg transition">
+            <h3 className="font-bold text-gray-800 text-lg">📱 Mobile-Optimized</h3>
+            <p className="text-gray-600 mt-1">Looks perfect on any device — phone, tablet, or desktop.</p>
+          </div>
+          <div className="bg-white p-6 rounded-xl shadow-md text-left hover:shadow-lg transition">
+            <h3 className="font-bold text-gray-800 text-lg">🔒 No Tracking, No Ads</h3>
+            <p className="text-gray-600 mt-1">We respect your privacy. No cookies, no ads, no spam.</p>
+          </div>
         </div>
 
-        <div className="mt-12 flex justify-center gap-4">
+        {/* CTA Buttons */}
+        <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
           <a
             href="/login"
-            className="inline-block bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition"
+            className="inline-block bg-gray-800 hover:bg-gray-700 text-white px-8 py-4 rounded-full font-medium shadow transition transform hover:scale-105"
           >
             Log In
-          </a>{' '}
+          </a>
           <a
             href="/signup"
-            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
+            className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-full font-medium shadow transition transform hover:scale-105"
           >
-            Sign Up
+            Sign Up Free
           </a>
         </div>
+
+        {/* Footer */}
+        <footer className="mt-16 text-sm text-gray-500">
+          <p>© 2025 thebiolink.lol — One link. Infinite possibilities.</p>
+        </footer>
       </div>
     </div>
   );
