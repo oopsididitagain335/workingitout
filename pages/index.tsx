@@ -202,6 +202,16 @@ export default function Home() {
           padding: 15px;
           font-size: 15px;
           outline: none;
+          border: none;
+        }
+
+        /* ✅ FIXED: Remove browser default focus ring */
+        .claimBox input:focus {
+          outline: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          appearance: none;
+          box-shadow: 0 0 0 2px #10b981 inset; /* Optional: add a subtle green inner glow */
         }
 
         .claimBox input::placeholder {
@@ -219,8 +229,10 @@ export default function Home() {
           border-radius: 0 50px 50px 0;
         }
 
-        .claimBox button:hover {
+        .claimBox button:hover,
+        .claimBox button:focus {
           background: #059669;
+          outline: none;
         }
 
         /* Features */
