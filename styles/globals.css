@@ -1,44 +1,72 @@
-/* styles/globals.css */
+/* ===== GLOBAL RESET ===== */
 
-/* ==== Full Reset ==== */
-*, *::before, *::after {
+/* Reset all elements */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   border: 0;
-  outline: 0;
+  outline: none;
+  font: inherit;
+  color: inherit;
+  text-decoration: none;
+  list-style: none;
+  background: transparent;
 }
 
-/* Reset html, body, and Next.js root container */
-html, body, #__next {
+/* ===== FULL VIEWPORT RESET ===== */
+/* Ensure no white gap around the page */
+html,
+body,
+#__next {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
+  min-height: 100vh;
   background: #000; /* Pure black */
-  color: #fff;
+  color: #fff;      /* Default text */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   line-height: 1.5;
   overflow-x: hidden; /* Prevent horizontal scroll */
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  z-index: 0;
 }
 
-/* Remove body margin and padding */
+/* Ensure body doesn't add scroll or margin */
 body {
-  margin: 0;
-  padding: 0;
   overflow-x: hidden;
-  background: #000;
+  overscroll-behavior-x: none;
 }
 
-/* Ensure full viewport height */
-html {
-  scroll-behavior: smooth;
-  height: 100%;
-  width: 100vw; /* Force full width */
-  overflow-x: hidden;
+/* ===== REMOVE FOCUS RINGS (Safari/Chrome fix) ===== */
+/* Prevents white/blue focus outline */
+*:focus {
+  outline: none;
+  -webkit-focus-ring-color: transparent;
+  -webkit-tap-highlight-color: transparent;
 }
 
+/* Explicitly reset interactive elements */
+button,
+input,
+textarea,
+select,
+a,
+summary {
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* ===== HIDE SCROLLBAR (Optional but Clean) ===== */
 /* Hide scrollbar but keep scrolling functional */
 body::-webkit-scrollbar {
   display: none;
@@ -48,24 +76,39 @@ body {
   scrollbar-width: none;      /* Firefox */
 }
 
-/* Remove tap highlight */
-a, button, input {
-  -webkit-tap-highlight-color: transparent;
+/* ===== IMAGE & MEDIA RESET ===== */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
 }
 
-/* Remove focus ring (Safari fix) */
-*:focus {
-  outline: none;
-  -webkit-focus-ring-color: transparent;
+/* ===== TYPOGRAPHY RESET ===== */
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
 }
 
-/* Reset form elements */
-button, input, textarea, select {
-  font: inherit;
-  background: none;
-  color: inherit;
-  border: none;
-  outline: none;
-  -webkit-appearance: none;
-  appearance: none;
+/* ===== LAYOUT ELEMENTS (Optional) ===== */
+main, section, article, nav, aside, header, footer, div {
+  display: block;
+  position: relative;
 }
+
+/* ===== OPTIONAL: Smooth Scroll ===== */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ===== DEBUG: Force Black Background on Everything (Uncomment if needed) ===== */
+/*
+* {
+  background: #000 !important;
+  background-color: #000 !important;
+}
+*/
