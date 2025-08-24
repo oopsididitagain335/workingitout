@@ -1,4 +1,4 @@
-// pages/signup.tsx
+import React from 'react';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 
@@ -11,7 +11,6 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // ✅ Fix: Add type to `e`
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
