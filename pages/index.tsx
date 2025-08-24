@@ -81,7 +81,6 @@ export default function Home() {
         <p>© 2025 thebiolink.lol — One link. Infinite possibilities.</p>
       </footer>
 
-      {/* CSS */}
       <style jsx>{`
         .container {
           margin: 0;
@@ -292,4 +291,3 @@ export default function Home() {
     </div>
   );
 }
-//  NO SECOND export default — REMOVED! - RETARDS___
