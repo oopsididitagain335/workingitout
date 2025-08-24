@@ -23,9 +23,9 @@ export interface User {
 }
 
 const UserSchema = new Schema<User>({
-  username: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  username: { type: String, required: true, unique: true, lowercase: true },
   name: { type: String, default: '' },
-  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, required: true },
   bio: { type: String, default: 'This is my bio link. Check out my links below!' },
   avatar: { type: String, default: '' },
@@ -40,14 +40,12 @@ const UserSchema = new Schema<User>({
   timestamps: true,
 });
 
-// Hash password before saving
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
-// Compare password method
 UserSchema.methods.comparePassword = async function (candidate: string): Promise<boolean> {
   return await bcrypt.compare(candidate, this.password);
 };
