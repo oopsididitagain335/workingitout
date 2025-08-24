@@ -1,7 +1,7 @@
 // pages/api/user/update.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { connectToDB } from '../../lib/db';
-import User from '../../models/User';
+import { connectToDB } from '../../lib/db'; // ✅ Correct path
+import User from '../../models/User';       // ✅ Correct path
 import jwt from 'jsonwebtoken';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
