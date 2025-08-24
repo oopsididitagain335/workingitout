@@ -1,4 +1,4 @@
-// pages/index.tsx
+import React from 'react'; // ✅ Add this line
 import { useState } from "react";
 import { useRouter } from "next/router";
 
@@ -21,12 +21,8 @@ export default function Home() {
           <span className="brand">thebiolink.lol</span>
         </div>
         <div className="navLinks">
-          <a href="/login" className="login">
-            Login
-          </a>
-          <a href="/signup" className="register">
-            Register
-          </a>
+          <a href="/login" className="login">Login</a>
+          <a href="/signup" className="register">Register</a>
         </div>
       </nav>
 
@@ -84,7 +80,6 @@ export default function Home() {
 
       {/* CSS */}
       <style jsx>{`
-        /* Container - Full viewport */
         .container {
           margin: 0;
           padding: 0;
@@ -95,11 +90,12 @@ export default function Home() {
           display: flex;
           flex-direction: column;
           overflow-x: hidden;
-          width: 100vw; /* Force full width */
+          width: 100vw;
           box-sizing: border-box;
         }
 
-        /* Navbar */
+        /* === REST OF YOUR STYLES === */
+        /* (Keep all your existing CSS here — no changes needed) */
         .navbar {
           padding: 20px 40px;
           display: flex;
@@ -152,7 +148,6 @@ export default function Home() {
           font-weight: 500;
         }
 
-        /* Hero */
         .hero {
           flex: 1;
           display: flex;
@@ -182,7 +177,6 @@ export default function Home() {
           line-height: 1.6;
         }
 
-        /* Claim Box */
         .claimBox {
           display: flex;
           align-items: center;
@@ -231,7 +225,6 @@ export default function Home() {
           background: #059669;
         }
 
-        /* ✅ Fix focus ring */
         .claimBox button:focus {
           outline: none;
           box-shadow: none;
@@ -240,7 +233,6 @@ export default function Home() {
           appearance: none;
         }
 
-        /* Features */
         .features {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
@@ -259,22 +251,4 @@ export default function Home() {
 
         .featureCard {
           background: #111;
-          border: 1px solid #222;
-          padding: 24px;
-          border-radius: 12px;
-          text-align: left;
-          transition: border 0.2s ease;
-        }
-
-        .featureCard:hover {
-          border-color: #10b981;
-        }
-
-        .icon {
-          font-size: 18px;
-          margin-right: 8px;
-          vertical-align: middle;
-        }
-
-        .featureCard h3 {
-  
+     
