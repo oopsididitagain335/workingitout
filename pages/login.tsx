@@ -1,4 +1,4 @@
-// pages/login.tsx
+import React from 'react';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 
@@ -6,10 +6,9 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // ✅ Fix: Type the event parameter
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
