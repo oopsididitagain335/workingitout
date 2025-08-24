@@ -6,10 +6,11 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  // ✅ Fix: Type the event parameter
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -23,7 +24,6 @@ export default function Login() {
     const data = await res.json();
 
     if (res.ok) {
-      // Save user + token (in localStorage for now)
       localStorage.setItem('user', JSON.stringify(data.user));
       localStorage.setItem('token', data.token);
       router.push('/dashboard');
