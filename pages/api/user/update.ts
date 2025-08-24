@@ -1,7 +1,7 @@
 // pages/api/user/update.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { connectToDB } from '../../lib/db';
-import User from '../../models/User';
+import { connectToDB } from '../../lib/db';     // ✅ Imports from db.ts (not dbconnect.ts)
+import User from '../../models/User';           // ✅ Assumes User model exists
 import jwt from 'jsonwebtoken';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
