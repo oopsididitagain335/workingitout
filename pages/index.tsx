@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/router";
 
 export default function Home() {
-  const [username, setUsername] = useState<string>("");
+  const [username, setUsername] = useState("");
   const router = useRouter();
 
   const goToLink = () => {
@@ -83,7 +83,6 @@ export default function Home() {
 
       {/* CSS */}
       <style jsx>{`
-        /* Full viewport container */
         .container {
           margin: 0;
           padding: 0;
@@ -98,7 +97,6 @@ export default function Home() {
           box-sizing: border-box;
         }
 
-        /* Navbar */
         .navbar {
           padding: 20px 40px;
           display: flex;
@@ -151,7 +149,6 @@ export default function Home() {
           font-weight: 500;
         }
 
-        /* Hero */
         .hero {
           flex: 1;
           display: flex;
@@ -181,7 +178,6 @@ export default function Home() {
           line-height: 1.6;
         }
 
-        /* Claim Box */
         .claimBox {
           display: flex;
           align-items: center;
@@ -231,14 +227,12 @@ export default function Home() {
           background: #059669;
         }
 
-        /* ✅ Fix: Remove Safari/Chrome focus ring */
         .claimBox button:focus {
           outline: none;
           box-shadow: none;
           -webkit-focus-ring-color: transparent;
         }
 
-        /* Features */
         .features {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
@@ -287,7 +281,6 @@ export default function Home() {
           line-height: 1.5;
         }
 
-        /* Footer */
         .footer {
           padding: 20px;
           text-align: center;
@@ -299,5 +292,4 @@ export default function Home() {
     </div>
   );
 }
-
-export default Home;
+//  NO SECOND export default — REMOVED! - RETARDS___
