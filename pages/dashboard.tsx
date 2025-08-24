@@ -2,8 +2,15 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
+// ✅ Define the User type
+type User = {
+  name: string;
+  username: string;
+  email: string;
+};
+
 export default function Dashboard() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null); // ✅ Typed state
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -17,9 +24,16 @@ export default function Dashboard() {
     }
 
     try {
-      setUser(JSON.parse(savedUser));
+      const parsedUser = JSON.parse(savedUser);
+      // ✅ Optional: validate required fields
+      if (!parsedUser.name || !parsedUser.username || !parsedUser.email) {
+        throw new Error('Invalid user data');
+      }
+      setUser(parsedUser);
     } catch (error) {
-      console.error('Failed to parse user data');
+      console.error('Failed to parse or validate user data', error);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       router.push('/login');
     } finally {
       setLoading(false);
@@ -40,11 +54,10 @@ export default function Dashboard() {
     );
   }
 
-  // ✅ Null check: only render if user exists
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
-        <p className="text-red-500">Something went wrong. Please log in again.</p>
+        <p className="text-red-500">Session expired. Please log in again.</p>
       </div>
     );
   }
@@ -67,7 +80,6 @@ export default function Dashboard() {
       {/* Main */}
       <main className="max-w-6xl mx-auto p-6">
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-lg">
-          {/* ✅ Safe rendering: user is guaranteed to exist here */}
           <h2 className="text-xl font-semibold mb-2">Welcome, {user.name || 'User'}!</h2>
           <p className="text-gray-400 mb-4">
             Username: <span className="text-green-400">@{user.username}</span>
