@@ -2,8 +2,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { connectToDB } from '../../../lib/db';
 import User from '../../../models/User';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -19,24 +17,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     await connectToDB();
 
-    const user = await User.findOne({ email });
+    // ✅ Find user by email (case-insensitive)
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    // ✅ Use the comparePassword method (this handles bcrypt hashing)
+    const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Create JWT
-    const token = jwt.sign(
-      { userId: user._id, email: user.email, username: user.username },
-      process.env.JWT_SECRET!,
-      { expiresIn: '7d' }
-    );
-
-    // Return user data + token (you can use cookies later)
+    // ✅ Success: return user data
     res.status(200).json({
       message: 'Login successful',
       user: {
@@ -45,7 +38,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         username: user.username,
         email: user.email,
       },
-      token,
     });
   } catch (error) {
     console.error('Login error:', error);
