@@ -1,3 +1,4 @@
+// pages/index.tsx
 import { useState } from "react";
 import { useRouter } from "next/router";
 
@@ -83,18 +84,18 @@ export default function Home() {
 
       {/* CSS */}
       <style jsx>{`
-        /* Container - Full viewport, no bleed */
+        /* Container - Full viewport */
         .container {
           margin: 0;
           padding: 0;
           min-height: 100vh;
           background: #000;
           color: white;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           display: flex;
           flex-direction: column;
           overflow-x: hidden;
-          width: 100vw;
+          width: 100vw; /* Force full width */
           box-sizing: border-box;
         }
 
@@ -230,7 +231,7 @@ export default function Home() {
           background: #059669;
         }
 
-        /* ✅ Fix: Remove Safari focus ring */
+        /* ✅ Fix focus ring */
         .claimBox button:focus {
           outline: none;
           box-shadow: none;
@@ -276,27 +277,4 @@ export default function Home() {
         }
 
         .featureCard h3 {
-          font-size: 18px;
-          font-weight: 600;
-          margin-bottom: 8px;
-          color: white;
-        }
-
-        .featureCard p {
-          color: #999;
-          font-size: 14px;
-          line-height: 1.5;
-        }
-
-        /* Footer */
-        .footer {
-          padding: 20px;
-          text-align: center;
-          font-size: 12px;
-          color: #777;
-          border-top: 1px solid #1f1f1f;
-        }
-      `}</style>
-    </div>
-  );
-}
+  
