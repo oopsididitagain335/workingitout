@@ -7,7 +7,6 @@ export default function Home() {
 
   const goToLink = () => {
     if (username.trim()) {
-      // No actual profile creation, just preview
       router.push(`/preview/${username.trim().toLowerCase()}`);
     }
   };
@@ -54,6 +53,7 @@ export default function Home() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && goToLink()}
+            aria-label="Username"
           />
           <button onClick={goToLink}>Claim</button>
         </div>
@@ -80,15 +80,26 @@ export default function Home() {
         <p>© 2025 thebiolink.lol — One link. Infinite possibilities.</p>
       </footer>
 
-      {/* CSS inside the file */}
+      {/* Embedded CSS */}
       <style jsx>{`
+        /* Full reset for edges */
         .container {
+          margin: 0;
+          padding: 0;
           min-height: 100vh;
-          background: #0a0a0a;
+          width: 100%;
+          background: #000; /* Pure black */
           color: white;
           font-family: sans-serif;
           display: flex;
           flex-direction: column;
+          overflow-x: hidden;
+        }
+
+        /* Prevent any scroll or focus artifacts */
+        * {
+          outline: none;
+          -webkit-tap-highlight-color: transparent;
         }
 
         /* Navbar */
@@ -166,9 +177,11 @@ export default function Home() {
           font-weight: 800;
           margin-bottom: 20px;
           line-height: 1.2;
-        }
-        .heroTitle span {
           color: white;
+        }
+
+        .heroTitle span {
+          color: #22c55e; /* Optional: Highlight for branding */
         }
 
         .heroText {
@@ -202,14 +215,18 @@ export default function Home() {
           flex: 1;
           background: transparent;
           border: none;
-          outline: none;
           color: white;
           padding: 15px;
           font-size: 15px;
+          outline: none; /* Removes focus glow */
         }
 
         .claimBox input::placeholder {
           color: #555;
+        }
+
+        .claimBox input:focus {
+          outline: none;
         }
 
         .claimBox button {
@@ -219,8 +236,9 @@ export default function Home() {
           padding: 15px 25px;
           font-weight: 600;
           cursor: pointer;
-          transition: 0.2s ease;
+          transition: background 0.2s ease;
         }
+
         .claimBox button:hover {
           background: #15803d;
         }
@@ -246,16 +264,18 @@ export default function Home() {
           padding: 24px;
           border-radius: 10px;
           text-align: left;
-          transition: 0.2s ease;
+          transition: border 0.2s ease;
         }
+
         .featureCard:hover {
-          border-color: rgba(34, 197, 94, 0.5);
+          border-color: #22c55e;
         }
 
         .featureCard h3 {
           font-size: 18px;
           font-weight: bold;
           margin-bottom: 8px;
+          color: white;
         }
 
         .featureCard p {
