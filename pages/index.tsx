@@ -20,8 +20,12 @@ export default function Home() {
           <span className="brand">thebiolink.lol</span>
         </div>
         <div className="navLinks">
-          <a href="/login" className="login">Login</a>
-          <a href="/signup" className="register">Register</a>
+          <a href="/login" className="login">
+            Login
+          </a>
+          <a href="/signup" className="register">
+            Register
+          </a>
         </div>
       </nav>
 
@@ -79,16 +83,19 @@ export default function Home() {
 
       {/* CSS */}
       <style jsx>{`
+        /* Container - Full viewport, no bleed */
         .container {
           margin: 0;
           padding: 0;
           min-height: 100vh;
           background: #000;
           color: white;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
           display: flex;
           flex-direction: column;
           overflow-x: hidden;
+          width: 100vw;
+          box-sizing: border-box;
         }
 
         /* Navbar */
@@ -202,16 +209,6 @@ export default function Home() {
           padding: 15px;
           font-size: 15px;
           outline: none;
-          border: none;
-        }
-
-        /* ✅ FIXED: Remove browser default focus ring */
-        .claimBox input:focus {
-          outline: none;
-          -webkit-appearance: none;
-          -moz-appearance: none;
-          appearance: none;
-          box-shadow: 0 0 0 2px #10b981 inset; /* Optional: add a subtle green inner glow */
         }
 
         .claimBox input::placeholder {
@@ -229,10 +226,17 @@ export default function Home() {
           border-radius: 0 50px 50px 0;
         }
 
-        .claimBox button:hover,
-        .claimBox button:focus {
+        .claimBox button:hover {
           background: #059669;
+        }
+
+        /* ✅ Fix: Remove Safari focus ring */
+        .claimBox button:focus {
           outline: none;
+          box-shadow: none;
+          -webkit-focus-ring-color: transparent;
+          -webkit-appearance: none;
+          appearance: none;
         }
 
         /* Features */
