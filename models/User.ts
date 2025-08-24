@@ -1,13 +1,15 @@
+// models/User.ts
 import { Schema, model, models, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+// Define TypeScript interfaces
 export interface Link {
   label: string;
   url: string;
   color: string;
 }
 
-export interface User {
+export interface User extends Document {
   _id: Types.ObjectId;
   username: string;
   name: string;
@@ -18,32 +20,64 @@ export interface User {
   links: Link[];
   createdAt: Date;
   updatedAt: Date;
+  comparePassword(candidate: string): Promise<boolean>;
 }
 
-const UserSchema = new Schema(
+// Define the schema
+const UserSchema = new Schema<User>(
   {
-    username: { type: String, required: true, unique: true, lowercase: true },
-    name: { type: String, default: '' },
-    email: { type: String, required: true, unique: true, lowercase: true },
-    password: { type: String, required: true },
-    bio: { type: String, default: 'This is my bio link. Check out my links below!' },
-    avatar: { type: String, default: '' },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    name: {
+      type: String,
+      default: '',
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    bio: {
+      type: String,
+      default: 'This is my bio link. Check out my links below!',
+    },
+    avatar: {
+      type: String,
+      default: '',
+    },
     links: [
       {
-        label: String,
-        url: String,
-        color: String,
+        label: { type: String, default: '' },
+        url: { type: String, default: '' },
+        color: { type: String, default: '#10b981' },
       },
     ],
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 // Hash password before saving
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 12);
-  next();
+  try {
+    this.password = await bcrypt.hash(this.password, 12);
+    next();
+  } catch (error: any) {
+    next(error);
+  }
 });
 
 // Add password comparison method
@@ -53,7 +87,7 @@ UserSchema.methods.comparePassword = async function (
   return await bcrypt.compare(candidate, this.password);
 };
 
-// ✅ Reuse existing model if it exists (avoids OverwriteModelError)
-const UserModel = models.User || model<User>('User', UserSchema);
+// Prevent OverwriteModelError in development (hot reload)
+const UserModel = (models.User as unknown as ReturnType<typeof model<User>>) || model<User>('User', UserSchema);
 
 export default UserModel;
