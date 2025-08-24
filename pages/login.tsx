@@ -66,9 +66,7 @@ export default function Login() {
         </form>
         <p className="footer-text">
           Don't have an account?{' '}
-          <a href="/signup" className="link">
-            Sign up
-          </a>
+          <a href="/signup" className="link">Sign up</a>
         </p>
       </div>
 
@@ -81,7 +79,6 @@ export default function Login() {
           background-color: #000;
           padding: 20px;
         }
-
         .form-wrapper {
           width: 100%;
           max-width: 400px;
@@ -91,7 +88,6 @@ export default function Login() {
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
           border: 1px solid #222;
         }
-
         .title {
           font-size: 28px;
           font-weight: 700;
@@ -99,18 +95,15 @@ export default function Login() {
           text-align: center;
           margin-bottom: 24px;
         }
-
         .input-group {
           margin-bottom: 20px;
         }
-
         .label {
           display: block;
           font-size: 14px;
           color: #aaa;
           margin-bottom: 8px;
         }
-
         .input {
           width: 100%;
           padding: 14px;
@@ -120,13 +113,10 @@ export default function Login() {
           color: white;
           font-size: 15px;
           outline: none;
-          transition: border 0.2s;
         }
-
         .input:focus {
           border-color: #10b981;
         }
-
         .button {
           width: 100%;
           padding: 14px;
@@ -137,37 +127,29 @@ export default function Login() {
           font-size: 16px;
           font-weight: 600;
           cursor: pointer;
-          transition: background 0.2s;
         }
-
         .button:hover:not(:disabled) {
           background: #0d946e;
         }
-
         .button:disabled {
           background: #0a7a5c;
-          cursor: not-allowed;
         }
-
         .error {
           color: #ef4444;
           font-size: 14px;
           text-align: center;
           margin-bottom: 16px;
         }
-
         .footer-text {
           color: #999;
           font-size: 14px;
           text-align: center;
           margin-top: 20px;
         }
-
         .link {
           color: #10b981;
           text-decoration: none;
         }
-
         .link:hover {
           text-decoration: underline;
         }
