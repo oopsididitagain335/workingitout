@@ -1,7 +1,8 @@
 // pages/api/auth/signup.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { connectToDB } from '../../../lib/db';
+import dbConnect from '../../../lib/db'; // ✅ Default import
 import User from '../../../models/User';
+import bcrypt from 'bcryptjs';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -15,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    await connectToDB();
+    await dbConnect();
 
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
