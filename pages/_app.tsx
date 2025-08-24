@@ -1,19 +1,9 @@
+// pages/_app.tsx
 import type { AppProps } from "next/app";
+import "../styles/globals.css"; // ← This applies your global reset
 
 function MyApp({ Component, pageProps }: AppProps) {
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        width: "100%",
-        backgroundColor: "#000",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <Component {...pageProps} />
-    </div>
-  );
+  return <Component {...pageProps} />;
 }
 
 export default MyApp;
