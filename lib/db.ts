@@ -11,25 +11,19 @@ declare global {
 const cached = global.mongooseCache ?? { conn: null, promise: null };
 global.mongooseCache = cached;
 
-async function dbConnect(): Promise<typeof mongoose> {
+async function dbConnect() {
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
     const opts = { bufferCommands: false };
     const uri = process.env.MONGODB_URI;
-
-    if (!uri) {
-      throw new Error('❌ MONGODB_URI is not set');
-    }
-
+    if (!uri) throw new Error('MONGODB_URI is missing');
     cached.promise = mongoose.connect(uri, opts);
   }
 
   try {
     cached.conn = await cached.promise;
-    console.log('✅ MongoDB connected');
   } catch (e) {
-    console.error('❌ MongoDB connection error:', e);
     cached.promise = null;
     throw e;
   }
