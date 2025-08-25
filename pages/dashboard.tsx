@@ -37,9 +37,21 @@ export default function Dashboard() {
 
     try {
       const parsedUser = JSON.parse(savedUser);
-      if (!parsedUser._id || !parsedUser.username) {
-        throw new Error('Invalid user data');
+
+      // ✅ Fix: Ensure links exists
+      if (!parsedUser.links || !Array.isArray(parsedUser.links)) {
+        parsedUser.links = [];
       }
+
+      // Add default links if empty
+      if (parsedUser.links.length === 0) {
+        parsedUser.links = [
+          { label: 'YouTube', url: '', color: '#FF0000' },
+          { label: 'Instagram', url: '', color: '#E1306C' },
+          { label: 'TikTok', url: '', color: '#000000' },
+        ];
+      }
+
       setUser(parsedUser);
     } catch (error) {
       console.error('Failed to parse user data', error);
@@ -93,7 +105,12 @@ export default function Dashboard() {
       const data = await res.json();
 
       if (res.ok) {
+        // ✅ Ensure links is array on save
+        if (!data.user.links || !Array.isArray(data.user.links)) {
+          data.user.links = [];
+        }
         localStorage.setItem('user', JSON.stringify(data.user));
+        setUser(data.user);
         setEditing(false);
       } else {
         alert(`Error: ${data.message}`);
@@ -154,7 +171,7 @@ export default function Dashboard() {
         gridTemplateColumns: '1fr 2fr',
         gap: '30px',
       }}>
-        {/* Left: Avatar & Banner Preview */}
+        {/* Left: Preview */}
         <div>
           <h2 style={{ fontSize: '18px', marginBottom: '10px' }}>Preview</h2>
           <div style={{
@@ -191,7 +208,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Right: Edit Form */}
+        {/* Right: Form */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div>
             <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px' }}>Name</label>
@@ -294,7 +311,7 @@ export default function Dashboard() {
               )}
             </div>
 
-            {user.links.map((link, index) => (
+            {(user.links || []).map((link, index) => (
               <div key={index} style={{ display: 'grid', gridTemplateColumns: '2fr 3fr 1fr', gap: '8px', marginBottom: '8px' }}>
                 <input
                   type="text"
@@ -354,7 +371,6 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {/* Save / Edit Buttons */}
           <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
             {!editing ? (
               <button
@@ -401,9 +417,4 @@ export default function Dashboard() {
                 </button>
               </>
             )}
-          </div>
-        </div>
-      </main>
-    </div>
-  );
-}
+     
