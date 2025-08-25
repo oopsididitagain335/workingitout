@@ -1,5 +1,5 @@
 // pages/login.tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 
 export default function Login() {
@@ -9,7 +9,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -23,13 +23,10 @@ export default function Login() {
     const data = await res.json();
 
     if (res.ok) {
-      // ✅ Save user and token
       localStorage.setItem('user', JSON.stringify(data.user));
       localStorage.setItem('token', data.token);
-      // ✅ Redirect to dashboard
-      router.push('/dashboard');
+      router.push('/dashboard'); // ✅ Redirect to dashboard
     } else {
-      // ✅ Show error
       setError(data.message);
       setLoading(false);
     }
