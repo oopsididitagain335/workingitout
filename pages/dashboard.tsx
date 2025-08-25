@@ -1,423 +1,270 @@
 // pages/dashboard.tsx
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
+import type { PublicUser } from "../components/ProfileView";
 
-type Link = {
-  label: string;
-  url: string;
-  color: string;
-};
+const ProfileView = dynamic(() => import("../components/ProfileView"), { ssr: false });
 
-type User = {
-  _id: string;
-  name: string;
-  username: string;
-  email: string;
-  bio: string;
-  avatar: string;
-  banner: string;
-  links: Link[];
-  theme: 'card' | 'minimal' | 'gradient';
-};
+type Link = { label: string; url: string; color?: string };
+type User = PublicUser & { _id: string; email: string };
 
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user');
-
+    const token = localStorage.getItem("token");
+    const savedUser = localStorage.getItem("user");
     if (!token || !savedUser) {
-      router.push('/login');
+      window.location.href = "/login";
       return;
     }
-
     try {
-      const parsedUser = JSON.parse(savedUser);
-
-      // ✅ Ensure links exists
-      if (!parsedUser.links || !Array.isArray(parsedUser.links)) {
-        parsedUser.links = [];
-      }
-
-      // Add default links if empty
-      if (parsedUser.links.length === 0) {
-        parsedUser.links = [
-          { label: 'YouTube', url: '', color: '#FF0000' },
-          { label: 'Instagram', url: '', color: '#E1306C' },
-          { label: 'TikTok', url: '', color: '#000000' },
-        ];
-      }
-
-      setUser(parsedUser);
-    } catch (error) {
-      console.error('Failed to parse user data', error);
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      router.push('/login');
+      const parsed = JSON.parse(savedUser);
+      if (!Array.isArray(parsed.links)) parsed.links = [];
+      setUser(parsed);
+    } catch {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
     }
-  }, [router]);
+  }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    if (!user) return;
-    setUser({ ...user, [name]: value });
+  const updateField = (name: keyof User, value: any) => {
+    setUser((u) => (u ? { ...u, [name]: value } : u));
   };
 
-  const handleLinkChange = (index: number, field: keyof Link, value: string) => {
+  const updateLink = (i: number, field: keyof Link, value: string) => {
     if (!user) return;
-    const newLinks = [...user.links];
-    newLinks[index][field] = value;
-    setUser({ ...user, links: newLinks });
+    const links = [...user.links];
+    links[i] = { ...links[i], [field]: value };
+    updateField("links", links);
   };
 
   const addLink = () => {
     if (!user) return;
-    setUser({
-      ...user,
-      links: [...user.links, { label: '', url: '', color: '#10b981' }],
-    });
+    updateField("links", [...user.links, { label: "", url: "", color: "#1f2937" }]);
   };
 
-  const removeLink = (index: number) => {
-    if (!user || user.links.length <= 1) return;
-    const newLinks = user.links.filter((_, i) => i !== index);
-    setUser({ ...user, links: newLinks });
+  const removeLink = (i: number) => {
+    if (!user) return;
+    updateField(
+      "links",
+      user.links.filter((_, idx) => idx !== i)
+    );
   };
 
-  const handleSave = async () => {
+  const previewUser = useMemo<PublicUser | null>(() => {
+    if (!user) return null;
+    return {
+      name: user.name,
+      username: user.username,
+      bio: user.bio,
+      avatar: user.avatar,
+      banner: user.banner,
+      links: user.links || [],
+      theme: user.theme || "card",
+    };
+  }, [user]);
+
+  const save = async () => {
     if (!user || !user._id) return;
-
     setSaving(true);
     try {
-      const res = await fetch('/api/user/update', {
-        method: 'POST',
+      const res = await fetch("/api/user/update", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(user),
+        body: JSON.stringify({
+          name: user.name,
+          username: user.username,
+          bio: user.bio,
+          avatar: user.avatar,
+          banner: user.banner,
+          links: user.links,
+          theme: user.theme || "card",
+        }),
       });
-
       const data = await res.json();
-
-      if (res.ok) {
-        if (!data.user.links || !Array.isArray(data.user.links)) {
-          data.user.links = [];
-        }
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setUser(data.user);
-        setEditing(false);
-      } else {
-        alert(`Error: ${data.message}`);
-      }
-    } catch (error) {
-      alert('Failed to save profile');
+      if (!res.ok) throw new Error(data.message || "Failed");
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setUser(data.user);
+      setEditing(false);
+    } catch (e: any) {
+      alert(e.message || "Failed to save");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    router.push('/login');
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "/login";
   };
 
   if (!user) {
     return (
-      <div style={{ textAlign: 'center', color: 'white', marginTop: '50px' }}>
-        Loading...
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        Loading…
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#000', color: 'white' }}>
+    <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header style={{
-        padding: '20px 30px',
-        borderBottom: '1px solid #222',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 600 }}>Dashboard</h1>
-        <button
-          onClick={handleLogout}
-          style={{
-            padding: '8px 16px',
-            background: '#ef4444',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer',
-          }}
-        >
-          Logout
-        </button>
+      <header className="flex items-center justify-between px-6 py-4 border-b border-neutral-800">
+        <h1 className="text-xl font-semibold">Dashboard</h1>
+        <div className="space-x-2">
+          {!editing ? (
+            <button onClick={() => setEditing(true)} className="px-3 py-2 rounded-md bg-emerald-600 hover:bg-emerald-500">
+              Edit Profile
+            </button>
+          ) : (
+            <>
+              <button onClick={save} disabled={saving} className="px-3 py-2 rounded-md bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50">
+                {saving ? "Saving…" : "Save Changes"}
+              </button>
+              <button onClick={() => setEditing(false)} className="px-3 py-2 rounded-md bg-gray-600 hover:bg-gray-500">
+                Cancel
+              </button>
+            </>
+          )}
+          <button onClick={logout} className="px-3 py-2 rounded-md bg-red-600 hover:bg-red-500">
+            Logout
+          </button>
+        </div>
       </header>
 
       {/* Main */}
-      <main style={{
-        maxWidth: '900px',
-        margin: '40px auto',
-        padding: '20px',
-        display: 'grid',
-        gridTemplateColumns: '1fr 2fr',
-        gap: '30px',
-      }}>
-        {/* Left: Preview */}
-        <div>
-          <h2 style={{ fontSize: '18px', marginBottom: '10px' }}>Preview</h2>
-          <div style={{
-            position: 'relative',
-            width: '300px',
-            height: '180px',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            border: '2px solid #333',
-          }}>
-            <div
-              style={{
-                backgroundImage: `url(${user.banner || '/default-banner.jpg'})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                width: '100%',
-                height: '100%',
-              }}
-            />
-            <img
-              src={user.avatar || 'https://api.dicebear.com/7.x/initials/svg?seed=User'}
-              alt="Profile"
-              style={{
-                position: 'absolute',
-                bottom: '-20px',
-                left: '20px',
-                width: '80px',
-                height: '80px',
-                borderRadius: '50%',
-                border: '3px solid white',
-                boxShadow: '0 0 10px rgba(0,0,0,0.5)',
-              }}
-            />
+      <main className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
+        {/* Preview */}
+        <section>
+          <h2 className="text-sm text-gray-400 mb-2">Preview</h2>
+          <div className="rounded-xl overflow-hidden border border-neutral-800">
+            {previewUser && <ProfileView user={previewUser} fullHeight={false} />}
           </div>
-        </div>
+        </section>
 
-        {/* Right: Form */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* Form */}
+        <section className="space-y-5">
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px' }}>Name</label>
+            <label className="block text-sm text-gray-400 mb-1">Name</label>
             <input
-              type="text"
-              name="name"
-              value={user.name}
-              onChange={handleChange}
+              className="w-full rounded-md bg-neutral-900 border border-neutral-800 px-3 py-2"
+              value={user.name || ""}
+              onChange={(e) => updateField("name", e.target.value)}
               disabled={!editing}
-              style={{
-                width: '100%',
-                padding: '10px',
-                background: '#111',
-                border: '1px solid #333',
-                borderRadius: '6px',
-                color: 'white',
-              }}
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px' }}>Bio</label>
+            <label className="block text-sm text-gray-400 mb-1">Bio</label>
             <textarea
-              name="bio"
-              value={user.bio}
-              onChange={handleChange}
-              disabled={!editing}
+              className="w-full rounded-md bg-neutral-900 border border-neutral-800 px-3 py-2"
               rows={3}
-              style={{
-                width: '100%',
-                padding: '10px',
-                background: '#111',
-                border: '1px solid #333',
-                borderRadius: '6px',
-                color: 'white',
-              }}
+              value={user.bio || ""}
+              onChange={(e) => updateField("bio", e.target.value)}
+              disabled={!editing}
             />
           </div>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px' }}>Profile Picture URL</label>
-            <input
-              type="url"
-              name="avatar"
-              value={user.avatar}
-              onChange={handleChange}
-              disabled={!editing}
-              placeholder="https://example.com/avatar.jpg"
-              style={{
-                width: '100%',
-                padding: '10px',
-                background: '#111',
-                border: '1px solid #333',
-                borderRadius: '6px',
-                color: 'white',
-              }}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">Avatar URL</label>
+              <input
+                className="w-full rounded-md bg-neutral-900 border border-neutral-800 px-3 py-2"
+                value={user.avatar || ""}
+                onChange={(e) => updateField("avatar", e.target.value)}
+                disabled={!editing}
+                placeholder="https://…/avatar.jpg"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-400 mb-1">Banner URL</label>
+              <input
+                className="w-full rounded-md bg-neutral-900 border border-neutral-800 px-3 py-2"
+                value={user.banner || ""}
+                onChange={(e) => updateField("banner", e.target.value)}
+                disabled={!editing}
+                placeholder="https://…/banner.jpg"
+              />
+            </div>
           </div>
 
+          {/* Theme */}
           <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px' }}>Banner URL</label>
-            <input
-              type="url"
-              name="banner"
-              value={user.banner}
-              onChange={handleChange}
-              disabled={!editing}
-              placeholder="https://example.com/banner.jpg"
-              style={{
-                width: '100%',
-                padding: '10px',
-                background: '#111',
-                border: '1px solid #333',
-                borderRadius: '6px',
-                color: 'white',
-              }}
-            />
+            <label className="block text-sm text-gray-400 mb-2">Theme</label>
+            <div className="flex gap-3">
+              {(["card", "minimal", "gradient"] as const).map((t) => (
+                <label key={t} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="radio"
+                    disabled={!editing}
+                    checked={(user.theme || "card") === t}
+                    onChange={() => updateField("theme", t)}
+                  />
+                  <span className="capitalize">{t}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
           {/* Links */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <label style={{ fontSize: '14px' }}>Links</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm text-gray-400">Links</label>
               {editing && (
-                <button
-                  type="button"
-                  onClick={addLink}
-                  disabled={saving}
-                  style={{
-                    fontSize: '12px',
-                    padding: '4px 8px',
-                    background: '#10b981',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                  }}
-                >
+                <button onClick={addLink} className="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-sm">
                   + Add
                 </button>
               )}
             </div>
 
-            {(user.links || []).map((link, index) => (
-              <div key={index} style={{ display: 'grid', gridTemplateColumns: '2fr 3fr 1fr', gap: '8px', marginBottom: '8px' }}>
-                <input
-                  type="text"
-                  placeholder="Label"
-                  value={link.label}
-                  onChange={(e) => handleLinkChange(index, 'label', e.target.value)}
-                  disabled={!editing}
-                  style={{
-                    padding: '8px',
-                    background: '#111',
-                    border: '1px solid #333',
-                    borderRadius: '6px',
-                    color: 'white',
-                  }}
-                />
-                <input
-                  type="url"
-                  placeholder="https://..."
-                  value={link.url}
-                  onChange={(e) => handleLinkChange(index, 'url', e.target.value)}
-                  disabled={!editing}
-                  style={{
-                    padding: '8px',
-                    background: '#111',
-                    border: '1px solid #333',
-                    borderRadius: '6px',
-                    color: 'white',
-                  }}
-                />
-                {editing && (
+            <div className="space-y-2">
+              {(user.links || []).map((l, i) => (
+                <div key={i} className="grid grid-cols-1 md:grid-cols-12 gap-2">
                   <input
-                    type="color"
-                    value={link.color}
-                    onChange={(e) => handleLinkChange(index, 'color', e.target.value)}
+                    className="md:col-span-3 rounded-md bg-neutral-900 border border-neutral-800 px-3 py-2"
+                    placeholder="Label"
+                    value={l.label || ""}
+                    onChange={(e) => updateLink(i, "label", e.target.value)}
                     disabled={!editing}
-                    style={{ height: '40px', borderRadius: '6px' }}
                   />
-                )}
-                {editing && user.links.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeLink(index)}
-                    disabled={saving}
-                    style={{
-                      gridColumn: '4',
-                      background: '#ef4444',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    ×
-                  </button>
-                )}
-              </div>
-            ))}
+                  <input
+                    className="md:col-span-7 rounded-md bg-neutral-900 border border-neutral-800 px-3 py-2"
+                    placeholder="https://your.link"
+                    value={l.url || ""}
+                    onChange={(e) => updateLink(i, "url", e.target.value)}
+                    disabled={!editing}
+                  />
+                  <div className="md:col-span-2 flex gap-2">
+                    <input
+                      type="color"
+                      className="w-full rounded-md bg-neutral-900 border border-neutral-800"
+                      value={l.color || "#1f2937"}
+                      onChange={(e) => updateLink(i, "color", e.target.value)}
+                      disabled={!editing}
+                    />
+                    {editing && (
+                      <button
+                        onClick={() => removeLink(i)}
+                        className="px-3 rounded-md bg-red-600 hover:bg-red-500"
+                        title="Remove"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-
-          <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-            {!editing ? (
-              <button
-                onClick={() => setEditing(true)}
-                style={{
-                  padding: '10px 20px',
-                  background: '#10b981',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                }}
-              >
-                Edit Profile
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  style={{
-                    padding: '10px 20px',
-                    background: '#10b981',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </button>
-                <button
-                  onClick={() => setEditing(false)}
-                  style={{
-                    padding: '10px 20px',
-                    background: '#6b7280',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Cancel
-                </button>
-              </>
-            )}
-          </div>
-        </div>
+        </section>
       </main>
     </div>
   );
