@@ -14,21 +14,29 @@ export default function Login() {
     setError('');
     setLoading(true);
 
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const data = await res.json();
+      console.log('🔐 Login response status:', res.status);
 
-    if (res.ok) {
-      // ✅ Save user data as a plain object
-      localStorage.setItem('user', JSON.stringify(data.user));
-      localStorage.setItem('token', data.token);
-      router.push('/dashboard');
-    } else {
-      setError(data.message);
+      const data = await res.json();
+      console.log('🔐 Login response data:', data);
+
+      if (res.ok && data.token && data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);
+        router.push('/dashboard');
+      } else {
+        setError(data.message || 'Login failed. Please try again.');
+        setLoading(false);
+      }
+    } catch (err: any) {
+      console.error('🌐 Network error:', err);
+      setError('Network error. Check console for details.');
       setLoading(false);
     }
   };
