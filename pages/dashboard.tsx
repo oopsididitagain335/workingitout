@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
-// ✅ Define the User type
+// ✅ Define User type
 type User = {
   name: string;
   username: string;
@@ -10,7 +10,7 @@ type User = {
 };
 
 export default function Dashboard() {
-  const [user, setUser] = useState<User | null>(null); // ✅ Typed state
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -31,7 +31,7 @@ export default function Dashboard() {
       }
       setUser(parsedUser);
     } catch (error) {
-      console.error('Failed to parse user data', error);
+      console.error('Failed to parse user data:', error);
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       router.push('/login');
