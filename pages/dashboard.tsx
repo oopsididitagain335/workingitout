@@ -38,7 +38,7 @@ export default function Dashboard() {
     try {
       const parsedUser = JSON.parse(savedUser);
 
-      // ✅ Fix: Ensure links exists
+      // ✅ Ensure links exists
       if (!parsedUser.links || !Array.isArray(parsedUser.links)) {
         parsedUser.links = [];
       }
@@ -105,7 +105,6 @@ export default function Dashboard() {
       const data = await res.json();
 
       if (res.ok) {
-        // ✅ Ensure links is array on save
         if (!data.user.links || !Array.isArray(data.user.links)) {
           data.user.links = [];
         }
@@ -417,4 +416,9 @@ export default function Dashboard() {
                 </button>
               </>
             )}
-     
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
