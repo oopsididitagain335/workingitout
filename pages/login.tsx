@@ -9,7 +9,6 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // ✅ Fix: Add type to event parameter
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
@@ -24,6 +23,7 @@ export default function Login() {
     const data = await res.json();
 
     if (res.ok) {
+      // ✅ Save user data as a plain object
       localStorage.setItem('user', JSON.stringify(data.user));
       localStorage.setItem('token', data.token);
       router.push('/dashboard');
