@@ -10,19 +10,19 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    const result = await signIn('credentials', {
+    const res = await signIn('credentials', {
       redirect: false,
       email,
       password,
     });
 
-    if (result?.error) {
-      setError(result.error);
+    if (res?.error) {
+      setError(res.error);
       setLoading(false);
     } else {
       router.push('/dashboard');
