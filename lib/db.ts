@@ -1,26 +1,21 @@
 // lib/db.ts
-import mongoose, { Mongoose } from 'mongoose';
+import mongoose from 'mongoose';
 
-// Extend global to cache DB connection across hot reloads
 declare global {
   var mongooseCache: {
-    conn: Mongoose | null;
-    promise: Promise<Mongoose> | null;
+    conn: typeof mongoose | null;
+    promise: Promise<typeof mongoose> | null;
   };
 }
 
-// Use global cache to avoid reconnecting in dev
 const cached = global.mongooseCache ?? { conn: null, promise: null };
 global.mongooseCache = cached;
 
-async function dbConnect(): Promise<Mongoose> {
-  if (cached.conn) {
-    return cached.conn;
-  }
+async function dbConnect() {
+  if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
     const opts = { bufferCommands: false };
-
     cached.promise = mongoose.connect(process.env.MONGO_URI!, opts);
   }
 
@@ -28,8 +23,8 @@ async function dbConnect(): Promise<Mongoose> {
     cached.conn = await cached.promise;
   } catch (e) {
     cached.promise = null;
-    console.error('MongoDB connection error:', e);
-    throw e;
+    console.error('DB connection error:', e);
+    throw new Error('Failed to connect to MongoDB');
   }
 
   return cached.conn;
