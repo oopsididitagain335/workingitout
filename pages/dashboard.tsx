@@ -2,7 +2,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
+// ✅ Fix: Add _id to User type
 type User = {
+  _id: string;        // ← Added
   name: string;
   username: string;
   email: string;
@@ -26,7 +28,7 @@ export default function Dashboard() {
 
     try {
       const parsedUser = JSON.parse(savedUser);
-      if (!parsedUser.name || !parsedUser.username || !parsedUser.email) {
+      if (!parsedUser._id || !parsedUser.name || !parsedUser.username || !parsedUser.email) {
         throw new Error('Invalid user data');
       }
       setUser(parsedUser);
@@ -50,7 +52,7 @@ export default function Dashboard() {
   };
 
   const handleSave = async () => {
-    if (!user || !user._id) return;
+    if (!user || !user._id) return; // ✅ Now valid — _id exists in type
 
     setSaving(true);
     try {
