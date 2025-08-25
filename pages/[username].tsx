@@ -48,20 +48,8 @@ export default function BioPage() {
         setUser(data.user);
       })
       .catch(() => {
-        // ✅ Fallback user
-        setUser({
-          name: typeof username === 'string' ? username.charAt(0).toUpperCase() + username.slice(1) : 'User',
-          bio: 'This is my bio link.',
-          avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${username}`,
-          banner: '/default-banner.jpg',
-          links: [
-            { label: 'YouTube', url: 'https://youtube.com', color: '#FF0000' },
-            { label: 'Instagram', url: 'https://instagram.com', color: '#E1306C' },
-            { label: 'TikTok', url: 'https://tiktok.com', color: '#000000' },
-            { label: 'Twitter', url: 'https://twitter.com', color: '#1DA1F2' },
-            { label: 'Website', url: 'https://example.com', color: '#4C9AFF' },
-          ],
-        });
+        // ✅ Fallback: Only show if user exists in DB
+        setUser(null);
       })
       .finally(() => setLoading(false));
   }, [username]);
@@ -74,7 +62,6 @@ export default function BioPage() {
     );
   }
 
-  // ✅ Guard: Only render if user is not null
   if (!user) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -94,14 +81,21 @@ export default function BioPage() {
     >
       <div className="min-h-screen bg-black bg-opacity-70">
         <div className="max-w-md mx-auto pt-24 px-6 pb-12 text-center">
+          {/* Avatar */}
           <img
             src={user.avatar}
             alt={user.name}
             className="w-28 h-28 rounded-full mx-auto border-4 border-white shadow-2xl object-cover"
+            onError={(e) => {
+              e.currentTarget.src = '/default-avatar.png'; // ✅ Fallback to a real image
+            }}
           />
+
+          {/* Name & Bio */}
           <h1 className="text-3xl font-bold text-white mb-2 mt-6">{user.name}</h1>
           <p className="text-gray-300 mb-8 text-sm max-w-xs mx-auto leading-relaxed">{user.bio}</p>
 
+          {/* Links */}
           <div className="space-y-4">
             {(user.links || []).map(
               (link, i) =>
@@ -122,6 +116,7 @@ export default function BioPage() {
             )}
           </div>
 
+          {/* Footer */}
           <p className="text-gray-400 text-xs mt-12">
             Powered by{' '}
             <a href="https://thebiolink.lol" className="text-green-400 hover:underline">
@@ -131,15 +126,38 @@ export default function BioPage() {
         </div>
       </div>
 
-      <style jsx global>{`
+      {/* Embedded CSS */}
+      <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        html, body {
+        html,
+        body {
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           margin: 0;
           padding: 0;
           width: 100%;
           height: 100%;
           overflow-x: hidden;
+        }
+        .max-w-md {
+          max-width: 400px;
+        }
+        .rounded-full {
+          border-radius: 50%;
+        }
+        .shadow-2xl {
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+        .object-cover {
+          object-fit: cover;
+        }
+        .bg-opacity-70 {
+          background-opacity: 0.7;
+        }
+        .hover:scale-105 {
+          transform: scale(1.05);
+        }
+        .transition-all {
+          transition: all 0.2s ease;
         }
       `}</style>
     </div>
