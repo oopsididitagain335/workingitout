@@ -1,5 +1,6 @@
 // pages/login.tsx
 import { useState } from 'react';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
 
 export default function Login() {
@@ -9,35 +10,22 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+    const result = await signIn('credentials', {
+      redirect: false,
+      email,
+      password,
+    });
 
-      console.log('🔐 Login response status:', res.status);
-
-      const data = await res.json();
-      console.log('🔐 Login response data:', data);
-
-      if (res.ok && data.token && data.user) {
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('token', data.token);
-        router.push('/dashboard');
-      } else {
-        setError(data.message || 'Login failed. Please try again.');
-        setLoading(false);
-      }
-    } catch (err: any) {
-      console.error('🌐 Network error:', err);
-      setError('Network error. Check console for details.');
+    if (result?.error) {
+      setError(result.error);
       setLoading(false);
+    } else {
+      router.push('/dashboard');
     }
   };
 
