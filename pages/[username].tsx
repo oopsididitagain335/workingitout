@@ -1,41 +1,85 @@
 // pages/[username].tsx
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
+import { GetServerSideProps } from "next";
+import dbConnect from "../lib/db";
+import User from "../models/User";
 
-const ProfileView = dynamic(() => import("../components/ProfileView"), { ssr: false });
-import type { PublicUser } from "../components/ProfileView";
+interface Link {
+  label: string;
+  url: string;
+  color: string;
+}
 
-export default function PublicProfile() {
-  const { query } = useRouter();
-  const username = (query.username as string) || "";
-  const [user, setUser] = useState<PublicUser | null>(null);
-  const [loading, setLoading] = useState(true);
+interface ProfileProps {
+  user: {
+    username: string;
+    name: string;
+    bio: string;
+    avatar: string;
+    links: Link[];
+  } | null;
+}
 
-  useEffect(() => {
-    if (!username) return;
-    fetch(`/api/user/${encodeURIComponent(username)}`)
-      .then((r) => r.json())
-      .then((d) => setUser(d.user ?? null))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
-  }, [username]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <p className="text-gray-400 animate-pulse">Loading profile…</p>
-      </div>
-    );
-  }
-
+export default function Profile({ user }: ProfileProps) {
   if (!user) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <p className="text-red-400">Profile not found</p>
+      <div className="flex h-screen items-center justify-center text-white bg-black">
+        User not found
       </div>
     );
   }
 
-  return <ProfileView user={user} fullHeight />;
+  return (
+    <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white">
+      {/* Avatar */}
+      <div className="mt-16">
+        <img
+          src={user.avatar || "/default-avatar.png"}
+          alt={user.username}
+          className="w-32 h-32 rounded-full border-4 border-indigo-600 shadow-lg object-cover"
+        />
+      </div>
+
+      {/* Info */}
+      <div className="mt-6 text-center px-4 max-w-xl">
+        <h1 className="text-2xl font-bold">{user.name || user.username}</h1>
+        <p className="text-gray-400">@{user.username}</p>
+        <p className="mt-3 text-lg">{user.bio}</p>
+      </div>
+
+      {/* Links */}
+      <div className="mt-6 w-full max-w-md flex flex-col gap-3 px-4">
+        {user.links.map((link, idx) => (
+          <a
+            key={idx}
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block text-center py-3 rounded-lg font-semibold shadow-md"
+            style={{ backgroundColor: link.color }}
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
+    </div>
+  );
 }
+
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  await dbConnect();
+  const user = await User.findOne({ username: params?.username }).lean();
+
+  return {
+    props: {
+      user: user
+        ? {
+            username: user.username,
+            name: user.name,
+            bio: user.bio,
+            avatar: user.avatar,
+            links: user.links || [],
+          }
+        : null,
+    },
+  };
+};
