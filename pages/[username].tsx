@@ -2,11 +2,25 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
+type Link = {
+  label: string;
+  url: string;
+  color: string;
+};
+
+type User = {
+  name: string;
+  bio: string;
+  avatar: string;
+  banner: string;
+  links: Link[];
+};
+
 export default function BioPage() {
   const router = useRouter();
   const { username } = router.query;
 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null); // ✅ Typed state
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,7 +29,6 @@ export default function BioPage() {
     fetch(`/api/user/${username}`)
       .then((res) => res.json())
       .then((data) => {
-        // ✅ Fix: Ensure links is array
         if (!data.user?.links || !Array.isArray(data.user.links)) {
           data.user = {
             ...data.user,
@@ -34,6 +47,7 @@ export default function BioPage() {
         setUser(data.user);
       })
       .catch(() => {
+        // ✅ Fallback user with full shape
         setUser({
           name: typeof username === 'string' ? username.charAt(0).toUpperCase() + username.slice(1) : 'User',
           bio: 'This is my bio link.',
