@@ -14,8 +14,40 @@ export default function BioPage() {
 
     fetch(`/api/user/${username}`)
       .then((res) => res.json())
-      .then((data) => setUser(data.user))
-      .catch(() => setUser(null))
+      .then((data) => {
+        // ✅ Fix: Ensure links is array
+        if (!data.user?.links || !Array.isArray(data.user.links)) {
+          data.user = {
+            ...data.user,
+            links: [],
+          };
+        }
+        if (data.user.links.length === 0) {
+          data.user.links = [
+            { label: 'YouTube', url: 'https://youtube.com', color: '#FF0000' },
+            { label: 'Instagram', url: 'https://instagram.com', color: '#E1306C' },
+            { label: 'TikTok', url: 'https://tiktok.com', color: '#000000' },
+            { label: 'Twitter', url: 'https://twitter.com', color: '#1DA1F2' },
+            { label: 'Website', url: 'https://example.com', color: '#4C9AFF' },
+          ];
+        }
+        setUser(data.user);
+      })
+      .catch(() => {
+        setUser({
+          name: typeof username === 'string' ? username.charAt(0).toUpperCase() + username.slice(1) : 'User',
+          bio: 'This is my bio link.',
+          avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${username}`,
+          banner: '/default-banner.jpg',
+          links: [
+            { label: 'YouTube', url: 'https://youtube.com', color: '#FF0000' },
+            { label: 'Instagram', url: 'https://instagram.com', color: '#E1306C' },
+            { label: 'TikTok', url: 'https://tiktok.com', color: '#000000' },
+            { label: 'Twitter', url: 'https://twitter.com', color: '#1DA1F2' },
+            { label: 'Website', url: 'https://example.com', color: '#4C9AFF' },
+          ],
+        });
+      })
       .finally(() => setLoading(false));
   }, [username]);
 
@@ -27,25 +59,11 @@ export default function BioPage() {
     );
   }
 
-  const displayUser = user || {
-    name: typeof username === 'string' ? username.charAt(0).toUpperCase() + username.slice(1) : 'User',
-    bio: 'This is my bio link.',
-    avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${username}`,
-    banner: '/default-banner.jpg',
-    links: [
-      { label: 'YouTube', url: 'https://youtube.com', color: '#FF0000' },
-      { label: 'Instagram', url: 'https://instagram.com', color: '#E1306C' },
-      { label: 'TikTok', url: 'https://tiktok.com', color: '#000000' },
-      { label: 'Twitter', url: 'https://twitter.com', color: '#1DA1F2' },
-      { label: 'Website', url: 'https://example.com', color: '#4C9AFF' },
-    ],
-  };
-
   return (
     <div
       className="min-h-screen bg-cover bg-center bg-no-repeat"
       style={{
-        backgroundImage: `url(${displayUser.banner || '/default-banner.jpg'})`,
+        backgroundImage: `url(${user.banner || '/default-banner.jpg'})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
@@ -53,15 +71,15 @@ export default function BioPage() {
       <div className="min-h-screen bg-black bg-opacity-70">
         <div className="max-w-md mx-auto pt-24 px-6 pb-12 text-center">
           <img
-            src={displayUser.avatar}
-            alt={displayUser.name}
+            src={user.avatar}
+            alt={user.name}
             className="w-28 h-28 rounded-full mx-auto border-4 border-white shadow-2xl object-cover"
           />
-          <h1 className="text-3xl font-bold text-white mb-2 mt-6">{displayUser.name}</h1>
-          <p className="text-gray-300 mb-8 text-sm max-w-xs mx-auto leading-relaxed">{displayUser.bio}</p>
+          <h1 className="text-3xl font-bold text-white mb-2 mt-6">{user.name}</h1>
+          <p className="text-gray-300 mb-8 text-sm max-w-xs mx-auto leading-relaxed">{user.bio}</p>
 
           <div className="space-y-4">
-            {displayUser.links?.map(
+            {(user.links || []).map(
               (link, i) =>
                 link?.url && (
                   <a
