@@ -18,11 +18,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
     await dbConnect();
 
-    const { name, username, email, bio } = req.body;
+    const { name, username, email, bio, avatar, banner, links, theme } = req.body;
 
     const updatedUser = await User.findByIdAndUpdate(
       decoded.userId,
-      { name, username, email, bio },
+      { name, username, email, bio, avatar, banner, links, theme },
       { new: true, runValidators: true }
     ).select('-password');
 
@@ -36,6 +36,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   } catch (error: any) {
     console.error('Update error:', error);
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ message: 'Invalid or expired token' });
+    }
     res.status(500).json({ message: 'Failed to update profile' });
   }
 }
