@@ -1,17 +1,14 @@
 // models/User.ts
-import { Schema, model, models, Types } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-// 🔗 Link Interface
 export interface Link {
   label: string;
   url: string;
   color: string;
 }
 
-// 🧍 User Interface
-export interface User extends Document {
-  _id: Types.ObjectId;
+export interface User {
   username: string;
   name: string;
   email: string;
@@ -21,60 +18,30 @@ export interface User extends Document {
   banner: string;
   theme: 'card' | 'minimal' | 'gradient';
   links: Link[];
-  createdAt: Date;
-  updatedAt: Date;
   comparePassword(candidate: string): Promise<boolean>;
 }
 
-// 📐 Schema Definition
 const UserSchema = new Schema<User>({
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true,
-  },
-  name: {
-    type: String,
-    default: '',
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  bio: {
-    type: String,
-    default: 'This is my bio link. Check out my links below!',
-    maxlength: 200,
-  },
-  avatar: {
-    type: String,
-    default: '',
-  },
-  banner: {
-    type: String,
-    default: '', // e.g., background/cover image URL
-  },
-  theme: {
-    type: String,
-    enum: ['card', 'minimal', 'gradient'],
-    default: 'card',
-  },
-  links: [
-    {
-      label: { type: String, default: '' },
-      url: { type: String, default: '' },
-      color: { type: String, default: '#10b981' }, // Emerald green
-    },
-  ],
-}, {
-  timestamps: true,
+  username: { type: String, required: true, unique: true },
+  name: { type: String, default: '' },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  bio: { type: String, default: 'This is my bio link.' },
+  avatar: { type: String, default: '' },
+  banner: { type: String, default: '' },
+  theme: { type: String, enum: ['card', 'minimal', 'gradient'], default: 'card' },
+  links: [{ label: String, url: String, color: String }],
 });
+
+UserSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 12);
+  next();
+});
+
+UserSchema.methods.comparePassword = async function (candidate: string) {
+  return await bcrypt.compare(candidate, this.password);
+};
+
+const UserModel = models.User || model<User>('User', UserSchema);
+export default UserModel;
