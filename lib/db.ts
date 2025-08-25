@@ -1,7 +1,6 @@
 // lib/db.ts
 import mongoose from 'mongoose';
 
-// Extend the global scope to persist connection in development
 declare global {
   var mongooseCache: {
     conn: typeof mongoose | null;
@@ -17,12 +16,10 @@ async function dbConnect(): Promise<typeof mongoose> {
 
   if (!cached.promise) {
     const opts = { bufferCommands: false };
-
-    // 🔴 Use MONGODB_URI (not MONGO_URI) to be consistent with common practice
     const uri = process.env.MONGODB_URI;
 
     if (!uri) {
-      throw new Error('Please define the MONGODB_URI environment variable');
+      throw new Error('❌ MONGODB_URI is not set');
     }
 
     cached.promise = mongoose.connect(uri, opts);
@@ -30,11 +27,11 @@ async function dbConnect(): Promise<typeof mongoose> {
 
   try {
     cached.conn = await cached.promise;
-    console.log('✅ MongoDB connected successfully');
+    console.log('✅ MongoDB connected');
   } catch (e) {
     console.error('❌ MongoDB connection error:', e);
     cached.promise = null;
-    throw new Error('Failed to connect to MongoDB');
+    throw e;
   }
 
   return cached.conn;
