@@ -20,7 +20,7 @@ export default function BioPage() {
   const router = useRouter();
   const { username } = router.query;
 
-  const [user, setUser] = useState<User | null>(null); // ✅ Typed state
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,6 +29,7 @@ export default function BioPage() {
     fetch(`/api/user/${username}`)
       .then((res) => res.json())
       .then((data) => {
+        // ✅ Ensure links is array
         if (!data.user?.links || !Array.isArray(data.user.links)) {
           data.user = {
             ...data.user,
@@ -47,7 +48,7 @@ export default function BioPage() {
         setUser(data.user);
       })
       .catch(() => {
-        // ✅ Fallback user with full shape
+        // ✅ Fallback user
         setUser({
           name: typeof username === 'string' ? username.charAt(0).toUpperCase() + username.slice(1) : 'User',
           bio: 'This is my bio link.',
@@ -69,6 +70,15 @@ export default function BioPage() {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <p className="text-gray-400">Loading profile...</p>
+      </div>
+    );
+  }
+
+  // ✅ Guard: Only render if user is not null
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <p className="text-red-400">Profile not found</p>
       </div>
     );
   }
