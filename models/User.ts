@@ -1,15 +1,15 @@
 // models/User.ts
-import { Schema, model, models, Document } from 'mongoose';
+import { Schema, model, models, Document, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-// Define sub-document interface
+// Sub-document interface
 export interface Link {
   label: string;
   url: string;
   color: string;
 }
 
-// Define the User document interface (extends Document from Mongoose)
+// Document interface with methods
 export interface IUser extends Document {
   username: string;
   name: string;
@@ -23,12 +23,14 @@ export interface IUser extends Document {
   comparePassword(candidate: string): Promise<boolean>;
 }
 
+// Define schema with correct typing
 const LinkSchema = new Schema<Link>({
   label: { type: String, required: true },
   url: { type: String, required: true },
   color: { type: String, required: true },
 });
 
+// Fix: Explicitly type `this` in pre-save hook
 const UserSchema = new Schema<IUser>(
   {
     username: { type: String, required: true, unique: true, trim: true },
@@ -41,11 +43,11 @@ const UserSchema = new Schema<IUser>(
     theme: { type: String, enum: ['card', 'minimal', 'gradient'], default: 'card' },
     links: [LinkSchema],
   },
-  { timestamps: true } // Adds createdAt, updatedAt
+  { timestamps: true }
 );
 
-// Hash password before saving
-UserSchema.pre('save', async function (next) {
+// ✅ Fix: Correctly type `this` as IUser in pre-save
+UserSchema.pre<IUser>('save', async function (next) {
   if (!this.isModified('password')) return next();
   try {
     const salt = await bcrypt.genSalt(12);
@@ -56,14 +58,15 @@ UserSchema.pre('save', async function (next) {
   }
 });
 
-// Add method to compare password
+// ✅ Fix: Correctly type `this` in method
 UserSchema.methods.comparePassword = async function (
+  this: IUser,
   candidate: string
 ): Promise<boolean> {
   return await bcrypt.compare(candidate, this.password);
 };
 
-// Prevent overcompilation in development
-const UserModel = (models.User as unknown as typeof model<IUser>) || model<IUser>('User', UserSchema);
+// ✅ Fix: Proper model instantiation with type assertion
+const UserModel = models.User ? (models.User as unknown as ReturnType<typeof model<IUser>>) : model<IUser>('User', UserSchema);
 
 export default UserModel;
